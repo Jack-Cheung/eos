@@ -1,0 +1,49 @@
+{
+    "____comment": "This file was generated with eosio-abigen. DO NOT EDIT Tue Dec 25 14:27:21 2018",
+    "version": "eosio::abi/1.0",
+    "structs": [
+        {
+            "name": "addstring",
+            "base": "",
+            "fields": [
+                {
+                    "name":"str", 
+                    "type":"string"
+                }
+            ]
+        },
+        {
+            "name": "stringtable",
+            "base": "",
+            "fields": [
+                {
+                    "name":"str", 
+                    "type":"string"
+                },
+                {
+                    "name":"id", 
+                    "type":"uint64"
+                }
+            ]
+        }
+    ],
+    "types": [],
+    "actions": [
+        {
+            "name": "addstring", 			
+            "type": "addstring", 
+            "ricardian_contract": "" 
+        }
+    ],
+    "tables": [
+        {
+            "name": "stringtable",
+            "type": "stringtable", 
+            "index_type": "i64",
+            "key_names" : ["primary_key"],
+            "key_types" : ["uint64"]
+        }
+    ],
+    "ricardian_clauses": [],
+    "abi_extensions": []
+}

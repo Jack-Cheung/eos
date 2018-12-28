@@ -229,6 +229,10 @@ vector<chain::permission_level> get_account_permissions(const vector<string>& pe
    });
    vector<chain::permission_level> accountPermissions;
    boost::range::copy(fixedPermissions, back_inserter(accountPermissions));
+   for(auto& p : accountPermissions)
+   {
+      std::cout << "actor==" << p.actor << " perm ==" << p.permission << std::endl;
+   }
    return accountPermissions;
 }
 
@@ -303,6 +307,16 @@ void sign_transaction(signed_transaction& trx, fc::variant& required_keys, const
 }
 
 fc::variant push_transaction( signed_transaction& trx, int32_t extra_kcpu = 1000, packed_transaction::compression_type compression = packed_transaction::none ) {
+   
+   for(auto& t : trx)
+   {
+      for(auto& s: t.signatures)
+      {
+ std::cout << " sig = " << s << std::endl;
+      }
+   }
+   
+   
    auto info = get_info();
 
    if (trx.signatures.size() == 0) { // #5445 can't change txn content if already signed
@@ -404,7 +418,9 @@ bytes variant_to_bin( const account_name& account, const action_name& action, co
 
    auto action_type = abis->get_action_type( action );
    FC_ASSERT( !action_type.empty(), "Unknown action ${action} in contract ${contract}", ("action", action)( "contract", account ));
-   return abis->variant_to_binary( action_type, action_args_var, abi_serializer_max_time );
+   auto res = abis->variant_to_binary( action_type, action_args_var, abi_serializer_max_time );
+   std::cout << "###-" << fc::to_hex(res) << std::endl;
+   return res;
 }
 
 fc::variant bin_to_variant( const account_name& account, const action_name& action, const bytes& action_args) {

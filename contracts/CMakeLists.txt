@@ -18,6 +18,7 @@ add_subdirectory(stltest)
 add_subdirectory(test.inline)
 
 add_subdirectory(hello)
+#add_subdirectory(mycontract)
 add_subdirectory(asserter)
 add_subdirectory(proxy)
 add_subdirectory(test_api)

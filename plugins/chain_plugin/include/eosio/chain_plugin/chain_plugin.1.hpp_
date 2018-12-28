@@ -592,6 +592,7 @@ public:
 
    using push_block_params = chain::signed_block;
    using push_block_results = empty;
+   void add_string(const read_write::add_string_params& params, chain::plugin_interface::next_function<push_block_results> next);
    void push_block(const push_block_params& params, chain::plugin_interface::next_function<push_block_results> next);
 
    using push_transaction_params = fc::variant_object;
@@ -599,7 +600,6 @@ public:
       chain::transaction_id_type  transaction_id;
       fc::variant                 processed;
    };
-   void add_string(const read_write::add_string_params& params, chain::plugin_interface::next_function<push_transaction_results> next);
    void push_transaction(const push_transaction_params& params, chain::plugin_interface::next_function<push_transaction_results> next);
 
 
@@ -609,7 +609,7 @@ public:
 
    friend resolver_factory<read_write>;
    private:
-   /* fc::variant json_from_file_or_string(const string& file_or_str, fc::json::parse_type ptype = fc::json::legacy_parser);
+   fc::variant json_from_file_or_string(const string& file_or_str, fc::json::parse_type ptype = fc::json::legacy_parser);
    void send_actions(std::vector<chain::action>&& actions, int32_t extra_kcpu = 1000, chain::packed_transaction::compression_type compression = chain::packed_transaction::none );
    fc::variant push_actions(std::vector<chain::action>&& actions, int32_t extra_kcpu, chain::packed_transaction::compression_type compression = chain::packed_transaction::none );
    fc::variant push_transaction( chain::signed_transaction& trx, int32_t extra_kcpu = 1000, chain::packed_transaction::compression_type compression = chain::packed_transaction::none );
@@ -619,7 +619,7 @@ public:
    fc::variant determine_required_keys(const chain::signed_transaction& trx);
    void print_action_tree( const fc::variant& action );
    void sign_transaction(chain::signed_transaction& trx, fc::variant& required_keys, const chain::chain_id_type& chain_id);
-   void print_action( const fc::variant& at ); */
+   void print_action( const fc::variant& at );
 };
 
  //support for --key_types [sha256,ripemd160] and --encoding [dec/hex]
