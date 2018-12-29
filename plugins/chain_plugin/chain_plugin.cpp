@@ -1625,17 +1625,79 @@ void read_write::push_block(const read_write::push_block_params& params, next_fu
 }
 void read_write::add_string(const read_write::add_string_params& params, chain::plugin_interface::next_function<push_transaction_results> next)
 {
-   //////
-   read_write::push_transaction_params p;
-   push_transaction(p, next);
+
+   try
+   {
+      fc::variants vars{params.id, params.str};
+      fc::variant action_args_var(vars);
+      std::cout << "add_string id= " << params.id << ", str=" << params.str << std::endl;
+      vector<chain::permission_level> accountPermissions;
+      accountPermissions.push_back(chain::permission_level{.actor = "mycontract", .permission = "active"});
+
+      string abi_str =  "{\"account_name\":\"mycontract\",\"abi\":{\"version\":\"eosio::abi/1.0\",\"types\":[],\"structs\":[{\"name\":\"addstring\",\"base\":\"\",\"fields\":[{\"name\":\"id\",\"type\":\"uint64\"},{\"name\":\"str\",\"type\":\"string\"}]},{\"name\":\"stringtable\",\"base\":\"\",\"fields\":[{\"name\":\"str\",\"type\":\"string\"},{\"name\":\"id\",\"type\":\"uint64\"}]}],\"actions\":[{\"name\":\"addstring\",\"type\":\"addstring\",\"ricardian_contract\":\"\"}],\"tables\":[{\"name\":\"stringtable\",\"index_type\":\"i64\",\"key_names\":[\"primary_key\"],\"key_types\":[\"uint64\"],\"type\":\"stringtable\"}],\"ricardian_clauses\":[],\"error_messages\":[],\"abi_extensions\":[],\"variants\":[]}}";
+      auto abi_var = fc::json::variants_from_string(abi_str);
+      auto abi_results = abi_var[0].as<eosio::chain_apis::read_only::get_abi_results>();
+      
+      optional<abi_serializer> abis;
+      if( abi_results.abi.valid() ) {
+            abis.emplace( *abi_results.abi, abi_serializer_max_time );
+         } else {
+            std::cerr << "ABI for contract mycontract not found. Action data will be shown in hex only." << std::endl;
+      }
+
+      auto action_type = abis->get_action_type("addstring");
+      FC_ASSERT( !action_type.empty(), "Unknown action ${action} in contract ${contract}", ("action", "addstring")( "contract", "mycontract" ));
+      auto res = abis->variant_to_binary( action_type, action_args_var, abi_serializer_max_time );
+      std::cout << "[ action binary data ] = " << fc::to_hex(res) << std::endl;
+      action  my_action{accountPermissions, "mycontract", "addstring", res };
+
+      vector<action> actions;
+      actions.push_back(my_action);
+
+      signed_transaction trx;
+      trx.actions = std::forward<decltype(actions)>(actions);
+      chain::chain_id_type id("cf057bbfb72640471fd910bcb67639c22df9f92470936cddc1ade0e2f2e7dc4f");
+      
+      //5K5iT9EdUCQbS7uCqa5LVFJSpVE3UDXs1yYXTy1j5FuzEaE4PWV
+      private_key_type  pk(string("5K5iT9EdUCQbS7uCqa5LVFJSpVE3UDXs1yYXTy1j5FuzEaE4PWV"));
+      std::cout << " [ mycontract private key ] = " << string(pk) << std::endl;
+      auto& control = app().get_plugin<chain_plugin>().chain();
+      trx.expiration = control.head_block_time() + fc::seconds(30);
+      trx.delay_sec = 3;
+      trx.set_reference_block( control.head_block_id() ); 
+      trx.max_net_usage_words = 0;
+      trx.max_cpu_usage_ms = 0;
+      
+      auto digest = trx.sig_digest(id, trx.context_free_data);
+      std::cout << " [ digest ] = " << string(digest) << std::endl;
+      auto sig = pk.sign(digest);
+      std::cout << " [ signature ] = " << string(sig) << std::endl;
+      trx.signatures.push_back(sig);
+
+      fc::variants  sigs;
+      sigs.push_back(variant(string(sig)));
+     
+      auto ptrx = packed_transaction(trx);
+      auto obj = fc::mutable_variant_object()
+      ("compression","none")
+      ("packed_context_free_data", "")
+      ("packed_trx", fc::variant(ptrx.get_raw_transaction()))
+      ("signatures",sigs);
+      
+      
+      read_write::push_transaction_params p(obj);
+      push_transaction(p, next);
+      
+   }
+   catch(...)
+   {
+      std::cout << "!!!!!!!!" << std::endl;
+   }
 }
+
+
 void read_write::push_transaction(const read_write::push_transaction_params& params, next_function<read_write::push_transaction_results> next) {
    
-   
-   /* for(auto itr = params.begin();itr < params.end(); ++itr)
-   {
-      std::cout << "Hi!" << fc::to_stream(itr->key()) << ":" << fc::to_stream(itr->value()) << std::endl;
-   } */
    std::cout << "Hi!" ;
    fc::json::to_stream(std::cout, params);
    std::cout << std::endl;

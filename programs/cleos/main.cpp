@@ -297,6 +297,7 @@ fc::variant determine_required_keys(const signed_transaction& trx) {
            ("transaction", (transaction)trx)
            ("available_keys", public_keys);
    const auto& required_keys = call(get_required_keys, get_arg);
+   fc::json::to_stream(std::cout, required_keys);
    return required_keys["required_keys"];
 }
 
@@ -308,13 +309,14 @@ void sign_transaction(signed_transaction& trx, fc::variant& required_keys, const
 
 fc::variant push_transaction( signed_transaction& trx, int32_t extra_kcpu = 1000, packed_transaction::compression_type compression = packed_transaction::none ) {
    
-   for(auto& t : trx)
-   {
-      for(auto& s: t.signatures)
+      for(auto& s: trx.signatures)
       {
- std::cout << " sig = " << s << std::endl;
+      std::cout << " sig = " << string(s) << std::endl;
       }
-   }
+      for(auto& a: trx.actions)
+      {
+         
+      }
    
    
    auto info = get_info();
@@ -397,7 +399,7 @@ auto abi_serializer_resolver = [](const name& account) -> optional<abi_serialize
    if ( it == abi_cache.end() ) {
       auto result = call(get_abi_func, fc::mutable_variant_object("account_name", account));
       auto abi_results = result.as<eosio::chain_apis::read_only::get_abi_results>();
-
+      fc::json::to_stream(std::cout, result);
       optional<abi_serializer> abis;
       if( abi_results.abi.valid() ) {
          abis.emplace( *abi_results.abi, abi_serializer_max_time );
@@ -2900,8 +2902,8 @@ int main( int argc, char** argv ) {
             action_args_var = json_from_file_or_string(data, fc::json::relaxed_parser);
          } EOS_RETHROW_EXCEPTIONS(action_type_exception, "Fail to parse action JSON data='${data}'", ("data", data))
       }
+      fc::json::to_stream(std::cout, action_args_var);
       auto accountPermissions = get_account_permissions(tx_permission);
-
       send_actions({chain::action{accountPermissions, contract_account, action, variant_to_bin( contract_account, action, action_args_var ) }});
    });
 
