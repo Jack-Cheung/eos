@@ -71,6 +71,7 @@ Options:
   -p,--permission TEXT ...    An account and permission level to authorize, as in 'account@permission' (defaults to 'creator@active')
 ```
 */
+#include "cleos.hpp"
 
 #include <pwd.h>
 #include <string>
@@ -185,7 +186,7 @@ uint8_t  tx_max_cpu_usage = 0;
 uint32_t tx_max_net_usage = 0;
 
 uint32_t delaysec = 0;
-
+string res_table_string;
 vector<string> tx_permission;
 
 eosio::client::http::http_context context;
@@ -2195,6 +2196,7 @@ int exec_cmd( int argc, char** argv ) {
 
       std::cout << fc::json::to_pretty_string(result)
                 << std::endl;
+      res_table_string = fc::json::to_pretty_string(result);
    });
 
    auto getScope = get->add_subcommand( "scope", localized("Retrieve a list of scopes and tables owned by a contract"), false);
@@ -3474,19 +3476,67 @@ int exec_cmd( int argc, char** argv ) {
 
    return 0;
 }
+
+variant target_row;
+
 int new_transaction(uint64_t id, const char* trx)
 {
    int argc = 8;
-   char* argv[] = { "app", "push", "action", "mycontract", "addstring", "[1, \"test1\"]", "-p", "mycontract" };
+   string strid = fc::to_string(id);
+   string t =  "[" + strid + ", \""  + trx + "\"]";
+   char* argv6 = new char[1024];
+   ::memset((void*)argv6, 0, 1024);
+   //string strtrx(trx);
+   ::memcpy(argv6, t.c_str(), t.length() );
+
+   char* argv[] = { "app", "push", "action", "mycontract", "addstring", argv6, "-p", "mycontract" };
    return exec_cmd(argc, argv);   
 };
 
 const char* get_transaction(uint64_t id)
 {
+//cleos get table mycontract mycontract stringtable
+   char* argv[] = { "app", "get", "table", "mycontract", "mycontract", "stringtable" };
+   exec_cmd(sizeof(argv)/sizeof(char*), argv);
+   std::cout << "get trx" << std::endl;
+   auto table = fc::json::from_string(res_table_string);
+   auto rows = table["rows"].as<variants>();
+   for(auto& row : rows)
+   {
+      std::cout << "id:" << row["id"].as<uint64_t>() << ", str:" << row["str"].as<string>() << std::endl;
+      if(row["id"].as<uint64_t>() == id)
+      {
+         target_row = std::move(row);
+         break;
+      }
+   }
+   if(target_row.is_object())
+   {
+   return target_row["str"].as_string().c_str();
 
+   }
+   else
+   {
+      return "not exist";
+   }
+   //return  res_table_string.c_str();
 };
 
-int main()
+/* int main(int argc, char** argv)
 {
-   return new_transaction(1, "hello");
-}
+   //eosio_assert(argc == 3, " arg1 = id, arg2 = str");
+   uint64_t id = fc::to_uint64(argv[1]);
+   new_transaction(id, argv[2]);
+   const char* trx = get_transaction(id - 1);
+   std::cout << "main " << std::endl;
+   if(trx)
+   {
+
+   std::cout  << string(trx) << std::endl;
+   }
+   else
+   {
+      std::cout << "failed return null" << std::endl;
+   }
+   return 0;
+} */
