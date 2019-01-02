@@ -26,6 +26,16 @@ class [[eosio::contract]]  mycontract : public contract {
       {
 
       }
+      [[eosio::action]]
+      void clear()
+      {
+         string_index table(_code, _code.value);
+         auto itr = table.begin();
+         while(itr != table.end())
+         {
+            itr = table.erase(itr);
+         }
+      }
    private:
       struct [[eosio::table]] stringtable
       {
@@ -35,4 +45,4 @@ class [[eosio::contract]]  mycontract : public contract {
       };
       typedef eosio::multi_index< "stringtable"_n, stringtable > string_index;
 };
-EOSIO_DISPATCH( mycontract, (hi)(addstring)(getstring))
+EOSIO_DISPATCH( mycontract, (hi)(addstring)(getstring)(clear))

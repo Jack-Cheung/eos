@@ -17,6 +17,11 @@
             ]
         },
         {
+            "name": "clear",
+            "base": "",
+            "fields": [  ]
+        },
+        {
             "name": "stringtable",
             "base": "",
             "fields": [
@@ -36,6 +41,11 @@
         {
             "name": "addstring", 			
             "type": "addstring", 
+            "ricardian_contract": "" 
+        },
+        {
+            "name": "clear", 			
+            "type": "clear", 
             "ricardian_contract": "" 
         }
     ],

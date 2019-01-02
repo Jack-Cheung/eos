@@ -1213,10 +1213,10 @@ read_only::get_string_result read_only::get_string( const read_only::get_string_
    p.scope = "mycontract";
    p.json = true;
    p.table = N(stringtable);
-   p.limit = 10;
+   p.limit = 1000;
    p.index_position = "first";
    p.table_key = to_string(p_str.idx);
-   
+
    const abi_def abi = eosio::chain_apis::get_abi( db, p.code );
    std::cout << p_str.idx << std::endl;
    bool primary = false;

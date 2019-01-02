@@ -51,7 +51,7 @@ void wallet_manager::check_timeout() {
    if (timeout_time != timepoint_t::max()) {
       const auto& now = std::chrono::system_clock::now();
       if (now >= timeout_time) {
-         lock_all();
+         //lock_all();
       }
       timeout_time = now + timeout;
    }
