@@ -1207,7 +1207,6 @@ read_only::get_table_rows_result read_only::get_table_rows( const read_only::get
 
 read_only::get_string_result read_only::get_string( const read_only::get_string_params& p_str  ) const
 {
-   //p.code=mycontract p.scope=mycontract p.json=1 p.table=stringtable table_key= p.lower_bound= p.upper_bound= limits=10
    read_only::get_table_rows_params p;
    p.code = N(mycontract);
    p.scope = "mycontract";
@@ -1215,77 +1214,35 @@ read_only::get_string_result read_only::get_string( const read_only::get_string_
    p.table = N(stringtable);
    p.limit = 1000;
    p.index_position = "first";
-   p.table_key = to_string(p_str.idx);
+   //p.table_key = to_string(p_str.idx);
+   p.lower_bound = to_string(0);
+   p.upper_bound = to_string(3);
 
    const abi_def abi = eosio::chain_apis::get_abi( db, p.code );
    std::cout << p_str.idx << std::endl;
    bool primary = false;
    auto table_with_index = get_table_index_name( p, primary );
-   if( primary ) {
-      EOS_ASSERT( p.table == table_with_index, chain::contract_table_query_exception, "Invalid table name ${t}", ( "t", p.table ));
-      auto table_type = get_table_type( abi, p.table );
-      if( table_type == KEYi64 || p.key_type == "i64" || p.key_type == "name" ) {
-         const auto & tbl = get_table_rows_ex<key_value_index>(p,abi);
-         auto & rows = tbl.rows;
-         const auto & itr = std::find_if(rows.begin(), rows.end(), [&p_str](auto& r){
-               return r["id"] == p_str.idx;
-         });
-         if ( itr == std::end(rows) )
-         {
-            return  get_string_result{""};
-         }
-         else
-         {
-            return  get_string_result{itr->operator[]("str").as_string()};
-         }
-         //return get_{get_table_rows_ex<key_value_index>(p,abi).rows[0]["str"].as_string()};
-      }
-      EOS_ASSERT( false, chain::contract_table_query_exception,  "Invalid table type ${type}", ("type",table_type)("abi",abi));
-   } else {
-      EOS_ASSERT( !p.key_type.empty(), chain::contract_table_query_exception, "key type required for non-primary index" );
 
-      if (p.key_type == chain_apis::i64 || p.key_type == "name") {
-         return get_string_result{get_table_rows_by_seckey<index64_index, uint64_t>(p, abi, [](uint64_t v)->uint64_t {
-            return v;
-         }).rows[0]["str"].as_string()};
+   EOS_ASSERT( p.table == table_with_index, chain::contract_table_query_exception, "Invalid table name ${t}", ( "t", p.table ));
+   auto table_type = get_table_type( abi, p.table );
+   if( table_type == KEYi64 || p.key_type == "i64" || p.key_type == "name" ) {
+      const auto & tbl = get_table_rows_ex<key_value_index>(p,abi);
+      auto & rows = tbl.rows;
+      const auto & itr = std::find_if(rows.begin(), rows.end(), [&p_str](auto& r){
+            return r["id"] == p_str.idx;
+      });
+      if ( itr == std::end(rows) )
+      {
+         return  get_string_result{""};
       }
-      else if (p.key_type == chain_apis::i128) {
-         return get_string_result{get_table_rows_by_seckey<index128_index, uint128_t>(p, abi, [](uint128_t v)->uint128_t {
-            return v;
-         }).rows[0]["str"].as_string()};
+      else
+      {
+         return  get_string_result{itr->operator[]("str").as_string()};
       }
-      else if (p.key_type == chain_apis::i256) {
-         if ( p.encode_type == chain_apis::hex) {
-            using  conv = keytype_converter<chain_apis::sha256,chain_apis::hex>;
-            return get_string_result{get_table_rows_by_seckey<conv::index_type, conv::input_type>(p, abi, conv::function()).rows[0].as_string()};
-         }
-         using  conv = keytype_converter<chain_apis::i256>;
-         return get_string_result{get_table_rows_by_seckey<conv::index_type, conv::input_type>(p, abi, conv::function()).rows[0].as_string()};
-      }
-      else if (p.key_type == chain_apis::float64) {
-         return get_string_result{get_table_rows_by_seckey<index_double_index, double>(p, abi, [](double v)->float64_t {
-            float64_t f = *(float64_t *)&v;
-            return f;
-         }).rows[0]["str"].as_string()};
-      }
-      else if (p.key_type == chain_apis::float128) {
-         return get_string_result{get_table_rows_by_seckey<index_long_double_index, double>(p, abi, [](double v)->float128_t{
-            float64_t f = *(float64_t *)&v;
-            float128_t f128;
-            f64_to_f128M(f, &f128);
-            return f128;
-         }).rows[0].as_string()};
-      }
-      else if (p.key_type == chain_apis::sha256) {
-         using  conv = keytype_converter<chain_apis::sha256,chain_apis::hex>;
-         return get_string_result{get_table_rows_by_seckey<conv::index_type, conv::input_type>(p, abi, conv::function()).rows[0].as_string()};
-      }
-      else if(p.key_type == chain_apis::ripemd160) {
-         using  conv = keytype_converter<chain_apis::ripemd160,chain_apis::hex>;
-         return get_string_result{get_table_rows_by_seckey<conv::index_type, conv::input_type>(p, abi, conv::function()).rows[0].as_string()};
-      }
-      EOS_ASSERT(false, chain::contract_table_query_exception,  "Unsupported secondary index type: ${t}", ("t", p.key_type));
    }
+   EOS_ASSERT( false, chain::contract_table_query_exception,  "Invalid table type ${type}", ("type",table_type)("abi",abi));
+
+   return  get_string_result{""};
    
 }
 
@@ -1623,9 +1580,8 @@ void read_write::push_block(const read_write::push_block_params& params, next_fu
       chain_plugin::handle_db_exhaustion();
    } CATCH_AND_CALL(next);
 }
-void read_write::add_string(const read_write::add_string_params& params, chain::plugin_interface::next_function<push_transaction_results> next)
+void read_write::add_string(const read_write::add_string_params& params, next_function<read_write::add_string_results> next)
 {
-
    try
    {
       fc::variants vars{params.id, params.str};
@@ -1686,8 +1642,39 @@ void read_write::add_string(const read_write::add_string_params& params, chain::
       
       
       read_write::push_transaction_params p(obj);
-      push_transaction(p, next);
-      
+      //push_transaction(p, next);
+   try {
+      auto pretty_input = std::make_shared<packed_transaction>();
+      auto resolver = make_resolver(this, abi_serializer_max_time);
+      try {
+         abi_serializer::from_variant(p, *pretty_input, resolver, abi_serializer_max_time);
+      } EOS_RETHROW_EXCEPTIONS(chain::packed_transaction_type_exception, "Invalid packed transaction")
+
+      app().get_method<incoming::methods::transaction_async>()(pretty_input, true, [this, next](const fc::static_variant<fc::exception_ptr, transaction_trace_ptr>& result) -> void{
+         if (result.contains<fc::exception_ptr>()) {
+            next(result.get<fc::exception_ptr>());
+         } else {
+            auto trx_trace_ptr = result.get<transaction_trace_ptr>();
+
+            try {
+               chain::transaction_id_type id = trx_trace_ptr->id;
+               fc::variant output;
+               try {
+                  output = db.to_variant_with_abi( *trx_trace_ptr, abi_serializer_max_time );
+               } catch( chain::abi_exception& ) {
+                  output = *trx_trace_ptr;
+               }
+
+               next(read_write::add_string_results{true, output});
+            } CATCH_AND_CALL(next);
+         }
+      });
+
+
+   } catch ( boost::interprocess::bad_alloc& ) {
+      chain_plugin::handle_db_exhaustion();
+   } CATCH_AND_CALL(next);
+
    }
    catch(...)
    {

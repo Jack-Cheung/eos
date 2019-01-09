@@ -581,6 +581,7 @@ public:
 
    struct add_string_results{
       bool ok;
+      fc::variant processed;
    };
 
    struct add_string_params
@@ -599,7 +600,7 @@ public:
       chain::transaction_id_type  transaction_id;
       fc::variant                 processed;
    };
-   void add_string(const read_write::add_string_params& params, chain::plugin_interface::next_function<push_transaction_results> next);
+   void add_string(const read_write::add_string_params& params, chain::plugin_interface::next_function<add_string_results> next);
    void push_transaction(const push_transaction_params& params, chain::plugin_interface::next_function<push_transaction_results> next);
 
 
@@ -608,18 +609,7 @@ public:
    void push_transactions(const push_transactions_params& params, chain::plugin_interface::next_function<push_transactions_results> next);
 
    friend resolver_factory<read_write>;
-   private:
-   /* fc::variant json_from_file_or_string(const string& file_or_str, fc::json::parse_type ptype = fc::json::legacy_parser);
-   void send_actions(std::vector<chain::action>&& actions, int32_t extra_kcpu = 1000, chain::packed_transaction::compression_type compression = chain::packed_transaction::none );
-   fc::variant push_actions(std::vector<chain::action>&& actions, int32_t extra_kcpu, chain::packed_transaction::compression_type compression = chain::packed_transaction::none );
-   fc::variant push_transaction( chain::signed_transaction& trx, int32_t extra_kcpu = 1000, chain::packed_transaction::compression_type compression = chain::packed_transaction::none );
-   void print_result( const fc::variant& result );
-   eosio::chain_apis::read_only::get_info_results get_info();
-   chain::action generate_nonce_action();
-   fc::variant determine_required_keys(const chain::signed_transaction& trx);
-   void print_action_tree( const fc::variant& action );
-   void sign_transaction(chain::signed_transaction& trx, fc::variant& required_keys, const chain::chain_id_type& chain_id);
-   void print_action( const fc::variant& at ); */
+   
 };
 
  //support for --key_types [sha256,ripemd160] and --encoding [dec/hex]
@@ -753,7 +743,7 @@ FC_REFLECT( eosio::chain_apis::read_only::get_string_params, (idx) )
 FC_REFLECT( eosio::chain_apis::read_only::get_string_result, (str) );
 
 FC_REFLECT( eosio::chain_apis::read_write::add_string_params, (id)(str) )
-FC_REFLECT( eosio::chain_apis::read_write::add_string_results, (ok) )
+FC_REFLECT( eosio::chain_apis::read_write::add_string_results, (ok)(processed) )
 
 FC_REFLECT( eosio::chain_apis::read_only::get_table_by_scope_params, (code)(table)(lower_bound)(upper_bound)(limit)(reverse) )
 FC_REFLECT( eosio::chain_apis::read_only::get_table_by_scope_result_row, (code)(scope)(table)(payer)(count));
