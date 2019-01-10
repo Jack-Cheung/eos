@@ -571,7 +571,10 @@ public:
 
    friend struct resolver_factory<read_only>;
 };
-chain::bytes variant_to_bin( const account_name& account, const action_name& action, const fc::variant& action_args_var );
+//chain::bytes variant_to_bin( const account_name& account, const action_name& action, const fc::variant& action_args_var );
+chain::action make_action(const string& actor, const string& action_name, fc::variant&& action_args_var, fc::microseconds abi_serializer_max_time );
+
+
 class read_write {
    controller& db;
    const fc::microseconds abi_serializer_max_time;

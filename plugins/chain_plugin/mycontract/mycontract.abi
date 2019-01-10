@@ -7,10 +7,19 @@
             "base": "",
             "fields": [
                 {
+                    "name":"id", 
+                    "type":"uint64"
+                },
+                {
                     "name":"str", 
                     "type":"string"
                 }
             ]
+        },
+        {
+            "name": "clear",
+            "base": "",
+            "fields": [  ]
         },
         {
             "name": "stringtable",
@@ -32,6 +41,11 @@
         {
             "name": "addstring", 			
             "type": "addstring", 
+            "ricardian_contract": "" 
+        },
+        {
+            "name": "clear", 			
+            "type": "clear", 
             "ricardian_contract": "" 
         }
     ],
