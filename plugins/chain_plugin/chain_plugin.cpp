@@ -1132,6 +1132,7 @@ double convert_to_type(const string& str, const string& desc) {
 
 abi_def get_abi( const controller& db, const name& account ) {
    const auto &d = db.db();
+   std::cout << string(account) << std::endl;
    const account_object *code_accnt = d.find<account_object, by_name>(account);
    EOS_ASSERT(code_accnt != nullptr, chain::account_query_exception, "Fail to retrieve account for ${account}", ("account", account) );
    abi_def abi;
@@ -1216,11 +1217,10 @@ read_only::get_string_result read_only::get_string( const read_only::get_string_
    p.scope = "mycontract";
    p.json = true;
    p.table = N(stringtable);
-   p.limit = 1000;
+   p.limit = 10;
    p.index_position = "first";
-   //p.table_key = to_string(p_str.idx);
-   p.lower_bound = to_string(0);
-   p.upper_bound = to_string(3);
+   p.lower_bound = to_string(p_str.idx);
+   p.upper_bound = to_string(p_str.idx + 2);
 
    const abi_def abi = eosio::chain_apis::get_abi( db, p.code );
    std::cout << p_str.idx << std::endl;
@@ -1588,11 +1588,11 @@ void read_write::push_block(const read_write::push_block_params& params, next_fu
 
 action make_action(const string& actor, const string& action_name, fc::variant&& action_args_var, fc::microseconds abi_serializer_max_time )
 {
-      //string abi_str =  "{\"account_name\":\"mycontract\",\"abi\":{\"version\":\"eosio::abi/1.0\",\"types\":[],\"structs\":[{\"name\":\"addstring\",\"base\":\"\",\"fields\":[{\"name\":\"id\",\"type\":\"uint64\"},{\"name\":\"str\",\"type\":\"string\"}]},{\"name\":\"stringtable\",\"base\":\"\",\"fields\":[{\"name\":\"str\",\"type\":\"string\"},{\"name\":\"id\",\"type\":\"uint64\"}]}],\"actions\":[{\"name\":\"addstring\",\"type\":\"addstring\",\"ricardian_contract\":\"\"}],\"tables\":[{\"name\":\"stringtable\",\"index_type\":\"i64\",\"key_names\":[\"primary_key\"],\"key_types\":[\"uint64\"],\"type\":\"stringtable\"}],\"ricardian_clauses\":[],\"error_messages\":[],\"abi_extensions\":[],\"variants\":[]}}";
-      string abi_str = COMPRESSED_MYCONTRACT_ABI;
-      std::cout << abi_str << std::endl;
-      auto abi_var = fc::json::variants_from_string(abi_str);
-      auto abi_results = abi_var[0].as<eosio::chain_apis::read_only::get_abi_results>();
+      auto& control = app().get_plugin<chain_plugin>().chain();
+      read_only::get_abi_results abi_results;
+      abi_results.account_name = actor;
+      auto abi = get_abi(control, actor);
+      abi_results.abi = std::move(abi);
       optional<abi_serializer> abis;
       if(abi_results.abi.valid())
       {
@@ -1609,7 +1609,7 @@ action make_action(const string& actor, const string& action_name, fc::variant&&
       vector<chain::permission_level> accountPermissions;
       accountPermissions.push_back(chain::permission_level{.actor = actor, .permission = "active"});
       action  my_action{accountPermissions, actor, action_name, res };
-      return my_action;
+      return std::move(my_action);
 }
 
 
@@ -1632,8 +1632,6 @@ void read_write::add_string(const read_write::add_string_params& params, next_fu
 
       signed_transaction trx;
       trx.actions = std::forward<decltype(actions)>(actions);
-      //2. get chain id  controller.get_chain_id()
-      //chain::chain_id_type id("cf057bbfb72640471fd910bcb67639c22df9f92470936cddc1ade0e2f2e7dc4f");
       
       //3. get private key
       private_key_type  pk(string("5K5iT9EdUCQbS7uCqa5LVFJSpVE3UDXs1yYXTy1j5FuzEaE4PWV"));
@@ -1694,9 +1692,13 @@ void read_write::add_string(const read_write::add_string_params& params, next_fu
    } CATCH_AND_CALL(next);
 
    }
+   catch(chain::account_query_exception e)
+   {
+      std::cerr << e.what() << std::endl;
+   }
    catch(...)
    {
-      std::cout << "!!!!!!!!" << std::endl;
+      std::cout << "exception occured!!" << std::endl;
    }
 }
 

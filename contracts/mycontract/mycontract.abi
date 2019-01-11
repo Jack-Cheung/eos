@@ -1,4 +1,4 @@
-{
+{ 
     "____comment": "This file was generated with eosio-abigen. DO NOT EDIT Tue Dec 25 14:27:21 2018",
     "version": "eosio::abi/1.0",
     "structs": [
