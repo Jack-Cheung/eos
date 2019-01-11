@@ -2,7 +2,8 @@
 
 namespace eosio{namespace chain_apis{
 
-    constexpr char MYCONTRACT_ABI_PATH[] = "/home/qw/github/eos/build/plugins/chain_plugin/../../contracts/mycontract/mycontract.abi";
-    constexpr char COMPRESSED_MYCONTRACT_ABI[] = "{\"account_name\":\"mycontract\",\"abi\":{    \"____comment\": \"This file was generated with eosio-abigen. DO NOT EDIT Tue Dec 25 14:27:21 2018\",    \"version\": \"eosio::abi/1.0\",    \"structs\": [        {            \"name\": \"addstring\",            \"base\": \"\",            \"fields\": [                {                    \"name\":\"id\",                     \"type\":\"uint64\"                },                {                    \"name\":\"str\",                     \"type\":\"string\"                }            ]        },        {            \"name\": \"clear\",            \"base\": \"\",            \"fields\": [  ]        },        {            \"name\": \"stringtable\",            \"base\": \"\",            \"fields\": [                {                    \"name\":\"str\",                     \"type\":\"string\"                },                {                    \"name\":\"id\",                     \"type\":\"uint64\"                }            ]        }    ],    \"types\": [],    \"actions\": [        {            \"name\": \"addstring\", 			            \"type\": \"addstring\",             \"ricardian_contract\": \"\"         },        {            \"name\": \"clear\", 			            \"type\": \"clear\",             \"ricardian_contract\": \"\"         }    ],    \"tables\": [        {            \"name\": \"stringtable\",            \"type\": \"stringtable\",             \"index_type\": \"i64\",            \"key_names\" : [\"primary_key\"],            \"key_types\" : [\"uint64\"]        }    ],    \"ricardian_clauses\": [],    \"abi_extensions\": []}}";
-
+    //constexpr char MYCONTRACT_ABI_PATH[] = "/home/qw/github/eos/build/plugins/chain_plugin/../../contracts/mycontract/mycontract.abi";
+    //constexpr char COMPRESSED_MYCONTRACT_ABI[] = "{\"account_name\":\"mycontract\",\"abi\":}";
+    //constexpr string MYCONTRACT_PRIVATE_KEY("5K5iT9EdUCQbS7uCqa5LVFJSpVE3UDXs1yYXTy1j5FuzEaE4PWV");
+    #define MYCONTRACT_PRIVATE_KEY "5K5iT9EdUCQbS7uCqa5LVFJSpVE3UDXs1yYXTy1j5FuzEaE4PWV"
 }};

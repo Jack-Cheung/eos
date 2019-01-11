@@ -1609,33 +1609,20 @@ action make_action(const string& actor, const string& action_name, fc::variant&&
       vector<chain::permission_level> accountPermissions;
       accountPermissions.push_back(chain::permission_level{.actor = actor, .permission = "active"});
       action  my_action{accountPermissions, actor, action_name, res };
-      return std::move(my_action);
+      return my_action;
 }
 
 
-void read_write::add_string(const read_write::add_string_params& params, next_function<read_write::add_string_results> next)
+template<typename T>
+void read_write::common_api_push_action(const string& actor, const string& acn, const chain::private_key_type& private_key, fc::variants vars, chain::plugin_interface::next_function<T> next)
 {
-   const string ACTOR = "mycontract";
-   const string PERMISSION = "active";
-   const string CONTRACT = ACTOR;
-   const string ACTION_NAME = "addstring";
-   const string ACTION_TYPE = ACTION_NAME;
-   try
-   {
-      fc::variants vars{params.id, params.str};
       fc::variant action_args_var(vars);
-      std::cout << "add_string id= " << params.id << ", str=" << params.str << std::endl;
-      auto my_action = chain_apis::make_action(ACTOR, ACTION_NAME, std::move(action_args_var), abi_serializer_max_time);
-      
+      auto my_action = chain_apis::make_action(actor, acn, std::move(action_args_var), abi_serializer_max_time);
       vector<action> actions;
       actions.push_back(my_action);
-
       signed_transaction trx;
       trx.actions = std::forward<decltype(actions)>(actions);
-      
-      //3. get private key
-      private_key_type  pk(string("5K5iT9EdUCQbS7uCqa5LVFJSpVE3UDXs1yYXTy1j5FuzEaE4PWV"));
-      std::cout << " [ mycontract private key ] = " << string(pk) << std::endl;
+      std::cout << " [ mycontract private key ] = " << static_cast<string>(private_key) << std::endl;
       auto& control = app().get_plugin<chain_plugin>().chain();
       trx.expiration = control.head_block_time() + fc::seconds(30);
       trx.delay_sec = 0;
@@ -1645,13 +1632,13 @@ void read_write::add_string(const read_write::add_string_params& params, next_fu
       auto id = control.get_chain_id();
       auto digest = trx.sig_digest(id, trx.context_free_data);
       std::cout << " [ digest ] = " << string(digest) << std::endl;
-      auto sig = pk.sign(digest);
+      auto sig = private_key.sign(digest);
       std::cout << " [ signature ] = " << string(sig) << std::endl;
       trx.signatures.push_back(sig);
 
       fc::variants  sigs;
       sigs.push_back(variant(string(sig)));
-     
+      
       auto ptrx = packed_transaction(trx);
       auto obj = fc::mutable_variant_object()
       ("compression","none")
@@ -1659,38 +1646,48 @@ void read_write::add_string(const read_write::add_string_params& params, next_fu
       ("packed_trx", fc::variant(ptrx.get_raw_transaction()))
       ("signatures",sigs);
       read_write::push_transaction_params p(obj);
-   try {
-      auto pretty_input = std::make_shared<packed_transaction>();
-      auto resolver = make_resolver(this, abi_serializer_max_time);
       try {
-         abi_serializer::from_variant(p, *pretty_input, resolver, abi_serializer_max_time);
-      } EOS_RETHROW_EXCEPTIONS(chain::packed_transaction_type_exception, "Invalid packed transaction")
+         auto pretty_input = std::make_shared<packed_transaction>();
+         auto resolver = chain_apis::make_resolver(this, abi_serializer_max_time);
+         try {
+            abi_serializer::from_variant(p, *pretty_input, resolver, abi_serializer_max_time);
+         } EOS_RETHROW_EXCEPTIONS(chain::packed_transaction_type_exception, "Invalid packed transaction")
 
-      app().get_method<incoming::methods::transaction_async>()(pretty_input, true, [this, next](const fc::static_variant<fc::exception_ptr, transaction_trace_ptr>& result) -> void{
-         if (result.contains<fc::exception_ptr>()) {
-            next(result.get<fc::exception_ptr>());
-         } else {
-            auto trx_trace_ptr = result.get<transaction_trace_ptr>();
-
-            try {
-               chain::transaction_id_type id = trx_trace_ptr->id;
-               fc::variant output;
+         app().get_method<chain::plugin_interface::incoming::methods::transaction_async>()(pretty_input, true, [this, next](const fc::static_variant<fc::exception_ptr, transaction_trace_ptr>& result) -> void{
+            if (result.contains<fc::exception_ptr>()) {
+               next(result.get<fc::exception_ptr>());
+            } else {
+               auto trx_trace_ptr = result.get<transaction_trace_ptr>();
                try {
-                  output = db.to_variant_with_abi( *trx_trace_ptr, abi_serializer_max_time );
-               } catch( chain::abi_exception& ) {
-                  output = *trx_trace_ptr;
-               }
+                  chain::transaction_id_type id = trx_trace_ptr->id;
+                  fc::variant output;
+                  try {
+                     output = db.to_variant_with_abi( *trx_trace_ptr, abi_serializer_max_time );
+                  } catch( chain::abi_exception& ) {
+                     output = *trx_trace_ptr;
+                  }
+                  next(T{true, output});
+               } CATCH_AND_CALL(next);
+            }
+         });
+      } catch ( boost::interprocess::bad_alloc& ) {
+         chain_plugin::handle_db_exhaustion();
+      } CATCH_AND_CALL(next);
+}
 
-               next(read_write::add_string_results{true, output});
-            } CATCH_AND_CALL(next);
-         }
-      });
 
 
-   } catch ( boost::interprocess::bad_alloc& ) {
-      chain_plugin::handle_db_exhaustion();
-   } CATCH_AND_CALL(next);
-
+void read_write::add_string(const read_write::add_string_params& params, next_function<read_write::add_string_results> next)
+{
+   const string ACTOR = "mycontract";
+   const string CONTRACT = ACTOR;
+   const string ACTION_NAME = "addstring";
+   const string ACTION_TYPE = ACTION_NAME;
+   try
+   {
+      private_key_type  pk(string(MYCONTRACT_PRIVATE_KEY));
+      fc::variants vars{params.id, params.str};
+      common_api_push_action(ACTOR, ACTION_NAME, pk, vars, next);
    }
    catch(chain::account_query_exception e)
    {
@@ -1704,11 +1701,6 @@ void read_write::add_string(const read_write::add_string_params& params, next_fu
 
 
 void read_write::push_transaction(const read_write::push_transaction_params& params, next_function<read_write::push_transaction_results> next) {
-   
-   std::cout << "Hi!" ;
-   fc::json::to_stream(std::cout, params);
-   std::cout << std::endl;
-
    try {
       auto pretty_input = std::make_shared<packed_transaction>();
       auto resolver = make_resolver(this, abi_serializer_max_time);

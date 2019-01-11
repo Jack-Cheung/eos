@@ -309,16 +309,6 @@ void sign_transaction(signed_transaction& trx, fc::variant& required_keys, const
 
 fc::variant push_transaction( signed_transaction& trx, int32_t extra_kcpu = 1000, packed_transaction::compression_type compression = packed_transaction::none ) {
    
-      for(auto& s: trx.signatures)
-      {
-      std::cout << " sig = " << string(s) << std::endl;
-      }
-      for(auto& a: trx.actions)
-      {
-         
-      }
-   
-   
    auto info = get_info();
 
    if (trx.signatures.size() == 0) { // #5445 can't change txn content if already signed

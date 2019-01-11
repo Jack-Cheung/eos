@@ -43,7 +43,7 @@ namespace eosio {
    using chain::action_name;
    using chain::abi_def;
    using chain::abi_serializer;
-
+   class chain_plugin;
 namespace chain_apis {
 struct empty{};
 
@@ -570,6 +570,8 @@ public:
    chain::symbol extract_core_symbol()const;
 
    friend struct resolver_factory<read_only>;
+private:
+   void common_api_get_data();
 };
 //chain::bytes variant_to_bin( const account_name& account, const action_name& action, const fc::variant& action_args_var );
 chain::action make_action(const string& actor, const string& action_name, fc::variant&& action_args_var, fc::microseconds abi_serializer_max_time );
@@ -612,7 +614,9 @@ public:
    void push_transactions(const push_transactions_params& params, chain::plugin_interface::next_function<push_transactions_results> next);
 
    friend resolver_factory<read_write>;
-   
+private:
+   template <typename T>
+   void common_api_push_action(const string& actor, const string& acn, const chain::private_key_type& private_key, fc::variants vars, chain::plugin_interface::next_function<T> next);
 };
 
  //support for --key_types [sha256,ripemd160] and --encoding [dec/hex]
