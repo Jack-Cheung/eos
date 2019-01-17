@@ -25,8 +25,9 @@
 
 	if [ "${MEM_MEG}" -lt 7000 ]; then
 		printf "\\n\\tYour system must have 7 or more Gigabytes of physical memory installed.\\n"
-		printf "\\tExiting now.\\n\\n"
-		exit 1;
+		#printf "\\tExiting now.\\n\\n"
+		printf "\\tBut it's OK.\\n\\n"
+		#exit 1;
 	fi
 
 	if [ "${OS_VER}" -lt 7 ]; then

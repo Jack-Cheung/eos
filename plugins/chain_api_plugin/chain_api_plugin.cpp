@@ -94,6 +94,7 @@ void chain_api_plugin::plugin_startup() {
       CHAIN_RO_CALL(get_raw_abi, 200),
       CHAIN_RO_CALL(get_table_rows, 200),
       CHAIN_RO_CALL(get_string, 200),
+      CHAIN_RO_CALL(create_key, 200),
       CHAIN_RO_CALL(get_table_by_scope, 200),
       CHAIN_RO_CALL(get_currency_balance, 200),
       CHAIN_RO_CALL(get_currency_stats, 200),
@@ -105,6 +106,7 @@ void chain_api_plugin::plugin_startup() {
       CHAIN_RO_CALL(get_required_keys, 200),
       CHAIN_RO_CALL(get_transaction_id, 200),
       CHAIN_RW_CALL_ASYNC(add_string, chain_apis::read_write::add_string_results, 202),
+      CHAIN_RW_CALL_ASYNC(create_account, chain_apis::read_write::create_account_result, 202),
       CHAIN_RW_CALL_ASYNC(push_block, chain_apis::read_write::push_block_results, 202),
       CHAIN_RW_CALL_ASYNC(push_transaction, chain_apis::read_write::push_transaction_results, 202),
       CHAIN_RW_CALL_ASYNC(push_transactions, chain_apis::read_write::push_transactions_results, 202)

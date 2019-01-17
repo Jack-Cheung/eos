@@ -1210,6 +1210,16 @@ read_only::get_table_rows_result read_only::get_table_rows( const read_only::get
    }
 }
 
+read_only::create_key_result read_only::create_key(const create_key_params p) const
+{
+   (void)p;
+   auto key = private_key_type::generate();
+   read_only::create_key_result result;
+   result.priv_key = string(key);
+   result.pub_key = string(key.get_public_key());
+   return result;
+}
+
 read_only::get_string_result read_only::get_string( const read_only::get_string_params& p_str  ) const
 {
    read_only::get_table_rows_params p;
@@ -1698,6 +1708,24 @@ void read_write::add_string(const read_write::add_string_params& params, next_fu
       std::cout << "exception occured!!" << std::endl;
    }
 }
+
+void read_write::create_account(const read_write::create_account_params& params, next_function<read_write::create_account_result> next)
+{
+   const string ACTOR = "eosio";
+   const string CONTRACT = ACTOR;
+   const string ACTION_NAME = "newaccount";
+   const string ACTION_TYPE = ACTION_NAME;
+   /*
+   eosio::chain::newaccount{
+         .creator      = creator,
+         .name         = newaccount,
+         .owner        = eosio::chain::authority{1, {{owner, 1}}, {}},
+         .active       = eosio::chain::authority{1, {{active, 1}}, {}}
+      }
+   */
+
+}
+
 
 
 void read_write::push_transaction(const read_write::push_transaction_params& params, next_function<read_write::push_transaction_results> next) {

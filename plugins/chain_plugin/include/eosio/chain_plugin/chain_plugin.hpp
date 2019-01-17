@@ -282,6 +282,11 @@ public:
       uint32_t idx;
    };
 
+   struct create_key_params
+   {
+      uint32_t nonce;
+   };
+
    struct get_table_rows_result {
       vector<fc::variant> rows; ///< one row per item, either encoded as hex String or JSON object
       bool                more = false; ///< true if last element in data is not the end and sizeof data() < limit
@@ -292,9 +297,15 @@ public:
       string str;
    };
 
+   struct create_key_result
+   {
+      string priv_key;
+      string pub_key;
+   };
+
    get_table_rows_result get_table_rows( const get_table_rows_params& params )const;
    get_string_result get_string( const get_string_params& params )const;
-
+   create_key_result create_key(const create_key_params p) const;
    struct get_table_by_scope_params {
       name        code; // mandatory
       name        table = 0; // optional, act as filter
@@ -595,6 +606,21 @@ public:
       string str;
    };
 
+   struct create_account_params
+   {
+      string creator;
+      string name;
+      string owner_key;
+      string active_key;
+   };
+
+   struct create_account_result
+   {
+      string creator;
+      string name;
+      string owner_key;
+      string active_key;
+   };
 
    using push_block_params = chain::signed_block;
    using push_block_results = empty;
@@ -606,6 +632,7 @@ public:
       fc::variant                 processed;
    };
    void add_string(const read_write::add_string_params& params, chain::plugin_interface::next_function<add_string_results> next);
+   void create_account(const read_write::create_account_params& params, chain::plugin_interface::next_function<create_account_result> next);
    void push_transaction(const push_transaction_params& params, chain::plugin_interface::next_function<push_transaction_results> next);
 
 
@@ -749,8 +776,14 @@ FC_REFLECT( eosio::chain_apis::read_only::get_table_rows_result, (rows)(more) );
 FC_REFLECT( eosio::chain_apis::read_only::get_string_params, (idx) )
 FC_REFLECT( eosio::chain_apis::read_only::get_string_result, (str) );
 
+FC_REFLECT( eosio::chain_apis::read_only::create_key_params, (nonce) )
+FC_REFLECT( eosio::chain_apis::read_only::create_key_result, (priv_key)(pub_key) );
+
 FC_REFLECT( eosio::chain_apis::read_write::add_string_params, (id)(str) )
 FC_REFLECT( eosio::chain_apis::read_write::add_string_results, (ok)(processed) )
+
+FC_REFLECT( eosio::chain_apis::read_write::create_account_params, (creator)(name)(owner_key)(active_key) )
+FC_REFLECT( eosio::chain_apis::read_write::create_account_result, (creator)(name)(owner_key)(active_key) )
 
 FC_REFLECT( eosio::chain_apis::read_only::get_table_by_scope_params, (code)(table)(lower_bound)(upper_bound)(limit)(reverse) )
 FC_REFLECT( eosio::chain_apis::read_only::get_table_by_scope_result_row, (code)(scope)(table)(payer)(count));
