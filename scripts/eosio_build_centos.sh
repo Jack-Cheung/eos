@@ -625,8 +625,8 @@ mongodconf
 		fi
 		if ! cd "${TEMP_DIR}/llvm-compiler"; then
 			printf "\\t!! Unable to enter directory %s/llvm-compiler !!\\n" "${TEMP_DIR}"
-			printf "\\tExiting now.\\n"
-			exit 1;
+			#printf "\\tExiting now.\\n"
+			#exit 1;
 		fi
 		LLVMURL="https://github.com/llvm-mirror/llvm.git"
 		if ! git clone --depth 1 --single-branch --branch release_40 "${LLVMURL}"; then
