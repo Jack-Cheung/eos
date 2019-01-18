@@ -371,7 +371,8 @@
 			printf "\\tExiting now.\\n"
 			exit 1;
 		fi
-		if ! $TEMP_DIR/$BOOSTFOLDER/b2 -j"${JOBS}" install; then
+		#if ! $TEMP_DIR/$BOOSTFOLDER/b2 -j"${JOBS}" install; then
+		if ! $TEMP_DIR/$BOOSTFOLDER/b2  install; then
 			printf "\\t!! Installation of boost libraries in ${BOOST_ROOT} failed with the above error !! 1\\n"
 			printf "\\tExiting now.\\n"
 			exit 1;
