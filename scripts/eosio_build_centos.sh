@@ -546,7 +546,8 @@ mongodconf
 			printf "\\tExiting now.\\n"
 			exit 1;
 		fi
-		if ! make -j"${JOBS}"; then
+		#if ! make -j"${JOBS}"; then
+		if ! make ; then
 			printf "\\t!! Error compiling MongoDB C driver !!\\n"
 			printf "\\tExiting now.\\n"
 			exit 1;
@@ -581,7 +582,8 @@ mongodconf
 			printf "\\tExiting now.\\n"
 			exit 1;
 		fi
-		if ! sudo make -j"${JOBS}"; then
+		#if ! sudo make -j"${JOBS}"; then
+		if ! sudo make ; then
 			printf "\\t!! Error compiling MongoDB C++ driver !!\\n"
 			printf "\\tExiting now.\\n\\n"
 			exit 1;
@@ -667,7 +669,8 @@ mongodconf
 			printf "\\tExiting now.\\n"
 			exit 1;
 		fi
-		if ! make -j"${JOBS}"; then
+		#if ! make -j"${JOBS}"; then
+		if ! make ; then
 			printf "\\t!! Compiling LLVM with EXPERIMENTAL WASM support has exited with the above errors !!\\n"
 			printf "\\tExiting now.\\n"
 			exit 1;
