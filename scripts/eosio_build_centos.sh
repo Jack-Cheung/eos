@@ -620,8 +620,8 @@ mongodconf
 		fi
 		if ! mkdir "${TEMP_DIR}/llvm-compiler"  2>/dev/null; then
 			printf "\\t!! Unable to create directory %s/llvm-compiler !!\\n" "${TEMP_DIR}"
-			printf "\\tExiting now.\\n"
-			exit 1;
+			#printf "\\tExiting now.\\n"
+			#exit 1;
 		fi
 		if ! cd "${TEMP_DIR}/llvm-compiler"; then
 			printf "\\t!! Unable to enter directory %s/llvm-compiler !!\\n" "${TEMP_DIR}"
