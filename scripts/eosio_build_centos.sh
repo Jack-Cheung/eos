@@ -497,7 +497,7 @@ mongodconf
 		fi
 	fi
 
-	if [ $MONGO_INSTALL == "true" ]; then
+	if [ $MONGO_INSTALL == "will not install" ]; then
 		if ! cd "${TEMP_DIR}"; then
 			printf "\\t!! Unable to enter directory %s !!\\n" "${TEMP_DIR}"
 			printf "\\tExiting now.\\n"
