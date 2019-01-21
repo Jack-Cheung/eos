@@ -18,7 +18,7 @@ for dep in "${DEPS[@]}"; do
    DEPS_STR="${DEPS_STR} Depends: ${dep}"
 done
 mkdir -p ${PROJECT}/DEBIAN
-echo "Package: ${PROJECT} 
+echo  -e "Package: ${PROJECT} 
 Version: ${VERSION_NO_SUFFIX}-${RELEASE}
 Section: devel
 Priority: optional
@@ -26,7 +26,7 @@ Depends: libbz2-dev (>= 1.0), libssl-dev (>= 1.0), libgmp3-dev, build-essential,
 Architecture: amd64
 Homepage: ${URL} 
 Maintainer: ${EMAIL} 
-Description: ${DESC}" &> ${PROJECT}/DEBIAN/control
+Description: ${DESC}\n" &> ${PROJECT}/DEBIAN/control
 
 export PREFIX
 export SUBPREFIX
