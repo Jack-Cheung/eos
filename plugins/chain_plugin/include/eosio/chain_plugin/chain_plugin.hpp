@@ -585,7 +585,7 @@ private:
    void common_api_get_data();
 };
 //chain::bytes variant_to_bin( const account_name& account, const action_name& action, const fc::variant& action_args_var );
-chain::action make_action(const string& actor, const string& action_name, fc::variant&& action_args_var, fc::microseconds abi_serializer_max_time );
+chain::action make_action(const string& actor, const string& permi, const string& action_name, fc::variant&& action_args_var, fc::microseconds abi_serializer_max_time );
 
 
 class read_write {
@@ -609,6 +609,7 @@ public:
    struct create_account_params
    {
       string creator;
+      string creator_private_key;
       string name;
       string owner_key;
       string active_key;
@@ -616,10 +617,8 @@ public:
 
    struct create_account_result
    {
-      string creator;
-      string name;
-      string owner_key;
-      string active_key;
+      bool ok;
+      fc::variant processed;
    };
 
    using push_block_params = chain::signed_block;
@@ -643,7 +642,7 @@ public:
    friend resolver_factory<read_write>;
 private:
    template <typename T>
-   void common_api_push_action(const string& actor, const string& acn, const chain::private_key_type& private_key, fc::variants vars, chain::plugin_interface::next_function<T> next);
+   void common_api_push_action(const string& actor, const string& permi, const string& acn, const chain::private_key_type& private_key, fc::variants vars, chain::plugin_interface::next_function<T> next);
 };
 
  //support for --key_types [sha256,ripemd160] and --encoding [dec/hex]
@@ -782,8 +781,8 @@ FC_REFLECT( eosio::chain_apis::read_only::create_key_result, (priv_key)(pub_key)
 FC_REFLECT( eosio::chain_apis::read_write::add_string_params, (id)(str) )
 FC_REFLECT( eosio::chain_apis::read_write::add_string_results, (ok)(processed) )
 
-FC_REFLECT( eosio::chain_apis::read_write::create_account_params, (creator)(name)(owner_key)(active_key) )
-FC_REFLECT( eosio::chain_apis::read_write::create_account_result, (creator)(name)(owner_key)(active_key) )
+FC_REFLECT( eosio::chain_apis::read_write::create_account_params, (creator)(creator_private_key)(name)(owner_key)(active_key) )
+FC_REFLECT( eosio::chain_apis::read_write::create_account_result, (ok)(processed) )
 
 FC_REFLECT( eosio::chain_apis::read_only::get_table_by_scope_params, (code)(table)(lower_bound)(upper_bound)(limit)(reverse) )
 FC_REFLECT( eosio::chain_apis::read_only::get_table_by_scope_result_row, (code)(scope)(table)(payer)(count));

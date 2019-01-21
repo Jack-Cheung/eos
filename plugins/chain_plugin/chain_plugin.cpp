@@ -1596,7 +1596,7 @@ void read_write::push_block(const read_write::push_block_params& params, next_fu
 }
 
 
-action make_action(const string& actor, const string& action_name, fc::variant&& action_args_var, fc::microseconds abi_serializer_max_time )
+action make_action(const string& actor, const string& permi, const string& action_name, fc::variant&& action_args_var, fc::microseconds abi_serializer_max_time )
 {
       auto& control = app().get_plugin<chain_plugin>().chain();
       read_only::get_abi_results abi_results;
@@ -1617,22 +1617,22 @@ action make_action(const string& actor, const string& action_name, fc::variant&&
       auto res = abis->variant_to_binary( action_type, action_args_var, abi_serializer_max_time );
       std::cout << "[ action binary data ] = " << fc::to_hex(res) << std::endl;
       vector<chain::permission_level> accountPermissions;
-      accountPermissions.push_back(chain::permission_level{.actor = actor, .permission = "active"});
+      accountPermissions.push_back(chain::permission_level{.actor = permi, .permission = "active"});
       action  my_action{accountPermissions, actor, action_name, res };
       return my_action;
 }
 
 
 template<typename T>
-void read_write::common_api_push_action(const string& actor, const string& acn, const chain::private_key_type& private_key, fc::variants vars, chain::plugin_interface::next_function<T> next)
+void read_write::common_api_push_action(const string& actor, const string& permi, const string& acn, const chain::private_key_type& private_key, fc::variants vars, chain::plugin_interface::next_function<T> next)
 {
       fc::variant action_args_var(vars);
-      auto my_action = chain_apis::make_action(actor, acn, std::move(action_args_var), abi_serializer_max_time);
+      auto my_action = chain_apis::make_action(actor, permi, acn, std::move(action_args_var), abi_serializer_max_time);
       vector<action> actions;
       actions.push_back(my_action);
       signed_transaction trx;
       trx.actions = std::forward<decltype(actions)>(actions);
-      std::cout << " [ mycontract private key ] = " << static_cast<string>(private_key) << std::endl;
+      std::cout << " [ private key ] = " << static_cast<string>(private_key) << std::endl;
       auto& control = app().get_plugin<chain_plugin>().chain();
       trx.expiration = control.head_block_time() + fc::seconds(30);
       trx.delay_sec = 0;
@@ -1697,7 +1697,7 @@ void read_write::add_string(const read_write::add_string_params& params, next_fu
    {
       private_key_type  pk(string(MYCONTRACT_PRIVATE_KEY));
       fc::variants vars{params.id, params.str};
-      common_api_push_action(ACTOR, ACTION_NAME, pk, vars, next);
+      common_api_push_action(ACTOR, ACTOR, ACTION_NAME, pk, vars, next);
    }
    catch(chain::account_query_exception e)
    {
@@ -1713,17 +1713,34 @@ void read_write::create_account(const read_write::create_account_params& params,
 {
    const string ACTOR = "eosio";
    const string CONTRACT = ACTOR;
+   const string PARENT_ACCOUNT = params.creator;
    const string ACTION_NAME = "newaccount";
    const string ACTION_TYPE = ACTION_NAME;
-   /*
-   eosio::chain::newaccount{
-         .creator      = creator,
-         .name         = newaccount,
-         .owner        = eosio::chain::authority{1, {{owner, 1}}, {}},
-         .active       = eosio::chain::authority{1, {{active, 1}}, {}}
+   try
+   {
+      private_key_type  pk(params.creator_private_key);
+      string owner_key;
+      if (params.owner_key.empty())
+      {
+         owner_key = params.active_key;
       }
-   */
-
+      else
+      {
+         owner_key = params.owner_key;
+      }
+      string var_str = "{\"creator\":\"" + params.creator + "\",\"name\":\"" + params.name +  "\"," 
+   "\"owner\":{\"threshold\":1,\"keys\":[{\"key\":\"" + params.active_key + "\",\"weight\":1}],\"accounts\":[],\"waits\":[]},"
+   "\"active\":{\"threshold\":1,\"keys\":[{\"key\":\""+ owner_key +"\",\"weight\":1}],\"accounts\":[],\"waits\":[]}}";
+      std::cout << var_str << std::endl;
+      fc::variants vars;
+      fc::variant var;
+      var = fc::json::from_string(var_str);
+      vars.push_back(var["creator"]);
+      vars.push_back(var["name"]);
+      vars.push_back(var["owner"]);
+      vars.push_back(var["active"]);
+      common_api_push_action(ACTOR, PARENT_ACCOUNT, ACTION_NAME, pk, vars, next);
+   }CATCH_AND_CALL(next);
 }
 
 
