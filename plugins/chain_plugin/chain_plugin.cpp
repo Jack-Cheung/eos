@@ -1662,7 +1662,6 @@ void read_write::common_api_push_action(const string& actor, const string& permi
          try {
             abi_serializer::from_variant(p, *pretty_input, resolver, abi_serializer_max_time);
          } EOS_RETHROW_EXCEPTIONS(chain::packed_transaction_type_exception, "Invalid packed transaction")
-
          app().get_method<chain::plugin_interface::incoming::methods::transaction_async>()(pretty_input, true, [this, next](const fc::static_variant<fc::exception_ptr, transaction_trace_ptr>& result) -> void{
             if (result.contains<fc::exception_ptr>()) {
                next(result.get<fc::exception_ptr>());
@@ -1676,6 +1675,8 @@ void read_write::common_api_push_action(const string& actor, const string& permi
                   } catch( chain::abi_exception& ) {
                      output = *trx_trace_ptr;
                   }
+                  fc::json::to_stream(std::cout, output);
+                  std::cout.flush();
                   next(T{true, output});
                } CATCH_AND_CALL(next);
             }
@@ -1743,7 +1744,27 @@ void read_write::create_account(const read_write::create_account_params& params,
    }CATCH_AND_CALL(next);
 }
 
-
+void read_write::token_create(const read_write::token_create_params& params, next_function<token_create_result> next)
+{
+   const string ACTOR = "eosio.token";
+   const string CONTRACT = ACTOR;
+   const string ACTION_NAME = "create";
+   const string ACTION_TYPE = ACTION_NAME;
+   try
+   {
+      private_key_type  pk(params.private_key);
+      //{"issuer":"eosio","maximum_supply":"10000.00 RMB"}
+      string var_str = "{\"issuer\":\"" + params.issuer + "\",\"maximum_supply\":\"" + params.maximum_supply +  "\"}";
+      std::cout << var_str << std::endl;
+      fc::variants vars;
+      fc::variant var;
+      var = fc::json::from_string(var_str);
+      vars.push_back(var["issuer"]);
+      vars.push_back(var["maximum_supply"]);
+      std::cout << var["issuer"].as_string() << '\t' << var["maximum_supply"].as_string() << std::endl;
+      common_api_push_action(ACTOR, ACTOR, ACTION_NAME, pk, vars, next);
+   }CATCH_AND_CALL(next);
+}
 
 void read_write::push_transaction(const read_write::push_transaction_params& params, next_function<read_write::push_transaction_results> next) {
    try {

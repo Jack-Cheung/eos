@@ -621,6 +621,18 @@ public:
       fc::variant processed;
    };
 
+   struct token_create_params
+   {
+      string issuer;
+      string maximum_supply;
+      string private_key;
+   };
+
+   struct token_create_result
+   {
+      bool ok;
+      fc::variant processed;
+   };
    using push_block_params = chain::signed_block;
    using push_block_results = empty;
    void push_block(const push_block_params& params, chain::plugin_interface::next_function<push_block_results> next);
@@ -632,6 +644,7 @@ public:
    };
    void add_string(const read_write::add_string_params& params, chain::plugin_interface::next_function<add_string_results> next);
    void create_account(const read_write::create_account_params& params, chain::plugin_interface::next_function<create_account_result> next);
+   void token_create(const read_write::token_create_params& params, chain::plugin_interface::next_function<token_create_result> next);
    void push_transaction(const push_transaction_params& params, chain::plugin_interface::next_function<push_transaction_results> next);
 
 
@@ -771,7 +784,7 @@ FC_REFLECT( eosio::chain_apis::read_write::push_transaction_results, (transactio
 
 FC_REFLECT( eosio::chain_apis::read_only::get_table_rows_params, (json)(code)(scope)(table)(table_key)(lower_bound)(upper_bound)(limit)(key_type)(index_position)(encode_type)(reverse)(show_payer) )
 FC_REFLECT( eosio::chain_apis::read_only::get_table_rows_result, (rows)(more) );
-
+////////////////////////////////////////////////////////////////////////////
 FC_REFLECT( eosio::chain_apis::read_only::get_string_params, (idx) )
 FC_REFLECT( eosio::chain_apis::read_only::get_string_result, (str) );
 
@@ -784,6 +797,9 @@ FC_REFLECT( eosio::chain_apis::read_write::add_string_results, (ok)(processed) )
 FC_REFLECT( eosio::chain_apis::read_write::create_account_params, (creator)(creator_private_key)(name)(owner_key)(active_key) )
 FC_REFLECT( eosio::chain_apis::read_write::create_account_result, (ok)(processed) )
 
+FC_REFLECT( eosio::chain_apis::read_write::token_create_params, (issuer)(private_key)(maximum_supply))
+FC_REFLECT( eosio::chain_apis::read_write::token_create_result, (ok)(processed) )
+/////////////////////////////////////////////////////////////////////////////
 FC_REFLECT( eosio::chain_apis::read_only::get_table_by_scope_params, (code)(table)(lower_bound)(upper_bound)(limit)(reverse) )
 FC_REFLECT( eosio::chain_apis::read_only::get_table_by_scope_result_row, (code)(scope)(table)(payer)(count));
 FC_REFLECT( eosio::chain_apis::read_only::get_table_by_scope_result, (rows)(more) );
