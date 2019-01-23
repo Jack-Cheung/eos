@@ -1686,9 +1686,9 @@ void read_write::common_api_push_action(const string& actor, const string& permi
       } CATCH_AND_CALL(next);
 }
 
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-
-void read_write::add_string(const read_write::add_string_params& params, next_function<read_write::add_string_results> next)
+void read_write::add_string(const read_write::add_string_params& params, next_function<read_write::common_result> next)
 {
    const string ACTOR = "mycontract";
    const string CONTRACT = ACTOR;
@@ -1710,7 +1710,7 @@ void read_write::add_string(const read_write::add_string_params& params, next_fu
    }
 }
 
-void read_write::create_account(const read_write::create_account_params& params, next_function<read_write::create_account_result> next)
+void read_write::create_account(const read_write::create_account_params& params, next_function<read_write::common_result> next)
 {
    const string ACTOR = "eosio";
    const string CONTRACT = ACTOR;
@@ -1744,7 +1744,7 @@ void read_write::create_account(const read_write::create_account_params& params,
    }CATCH_AND_CALL(next);
 }
 
-void read_write::token_create(const read_write::token_create_params& params, next_function<token_create_result> next)
+void read_write::token_create(const read_write::token_create_params& params, next_function<common_result> next)
 {
    const string ACTOR = "eosio.token";
    const string CONTRACT = ACTOR;
@@ -1766,6 +1766,55 @@ void read_write::token_create(const read_write::token_create_params& params, nex
    }CATCH_AND_CALL(next);
 }
 
+void read_write::token_issue(const read_write::token_issue_params& params, next_function<common_result> next)
+{
+   const string ACTOR = "eosio.token";
+   const string CONTRACT = ACTOR;
+   const string ACTION_NAME = "issue";
+   const string ACTION_TYPE = ACTION_NAME;
+   const string PERMISSION = params.issuer;
+   try
+   {
+      private_key_type  pk(params.private_key);//key of eosio
+      //{"to":"account1","quantity":"1.00 RMB","memo":"test"}
+      string var_str = "{\"to\":\"" + params.to + "\",\"quantity\":\"" + params.quantity + 
+       "\",\"memo\":\"" + params.memo +  "\"}";
+      std::cout << var_str << std::endl;
+      fc::variants vars;
+      fc::variant var;
+      var = fc::json::from_string(var_str);
+      vars.push_back(var["to"]);
+      vars.push_back(var["quantity"]);
+      vars.push_back(var["memo"]);
+      common_api_push_action(ACTOR, PERMISSION, ACTION_NAME, pk, vars, next);
+   }CATCH_AND_CALL(next);
+}
+
+void read_write::token_transfer(const read_write::token_transfer_params& params, next_function<common_result> next)
+{
+   const string ACTOR = "eosio.token";
+   const string CONTRACT = ACTOR;
+   const string ACTION_NAME = "transfer";
+   const string ACTION_TYPE = ACTION_NAME;
+   const string PERMISSION = params.from;
+   try
+   {
+      private_key_type  pk(params.private_key);//
+      //{"to":"account1","quantity":"1.00 RMB","memo":"test"}
+      string var_str = "{\"to\":\"" + params.to + "\",\"quantity\":\"" + params.quantity + 
+       "\",\"memo\":\"" + params.memo +  "\",\"from\":\"" + params.from +  "\"}";
+      std::cout << var_str << std::endl;
+      fc::variants vars;
+      fc::variant var;
+      var = fc::json::from_string(var_str);
+      vars.push_back(var["from"]);
+      vars.push_back(var["to"]);
+      vars.push_back(var["quantity"]);
+      vars.push_back(var["memo"]);
+      common_api_push_action(ACTOR, PERMISSION, ACTION_NAME, pk, vars, next);
+   }CATCH_AND_CALL(next);
+}
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 void read_write::push_transaction(const read_write::push_transaction_params& params, next_function<read_write::push_transaction_results> next) {
    try {
       auto pretty_input = std::make_shared<packed_transaction>();

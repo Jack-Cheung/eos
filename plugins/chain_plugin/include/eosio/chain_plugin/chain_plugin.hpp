@@ -594,11 +594,14 @@ class read_write {
 public:
    read_write(controller& db, const fc::microseconds& abi_serializer_max_time);
    void validate() const;
-
-   struct add_string_results{
+///////////////////////////////////////////////////////////////////////////////
+   struct common_result
+   {
       bool ok;
       fc::variant processed;
    };
+
+   //struct add_string_results:common_result{};
 
    struct add_string_params
    {
@@ -615,11 +618,7 @@ public:
       string active_key;
    };
 
-   struct create_account_result
-   {
-      bool ok;
-      fc::variant processed;
-   };
+   //struct create_account_result:common_result{};
 
    struct token_create_params
    {
@@ -628,11 +627,26 @@ public:
       string private_key;
    };
 
-   struct token_create_result
+   //struct token_create_result:common_result{};
+
+   struct token_issue_params
    {
-      bool ok;
-      fc::variant processed;
+      string issuer;
+      string to;
+      string quantity;
+      string memo;
+      string private_key;
    };
+
+   struct token_transfer_params
+   {
+      string to;
+      string quantity;
+      string memo;
+      string from;
+      string private_key;
+   };
+//////////////////////////////////////////////////////////////////////////////////
    using push_block_params = chain::signed_block;
    using push_block_results = empty;
    void push_block(const push_block_params& params, chain::plugin_interface::next_function<push_block_results> next);
@@ -642,9 +656,13 @@ public:
       chain::transaction_id_type  transaction_id;
       fc::variant                 processed;
    };
-   void add_string(const read_write::add_string_params& params, chain::plugin_interface::next_function<add_string_results> next);
-   void create_account(const read_write::create_account_params& params, chain::plugin_interface::next_function<create_account_result> next);
-   void token_create(const read_write::token_create_params& params, chain::plugin_interface::next_function<token_create_result> next);
+/////////////////////////////////////////////////////////////////////////////////
+   void add_string(const read_write::add_string_params& params, chain::plugin_interface::next_function<common_result> next);
+   void create_account(const read_write::create_account_params& params, chain::plugin_interface::next_function<common_result> next);
+   void token_create(const read_write::token_create_params& params, chain::plugin_interface::next_function<common_result> next);
+   void token_issue(const read_write::token_issue_params& params, chain::plugin_interface::next_function<common_result> next);
+   void token_transfer(const read_write::token_transfer_params& params, chain::plugin_interface::next_function<common_result> next);
+//////////////////////////////////////////////////////////////////////////////////
    void push_transaction(const push_transaction_params& params, chain::plugin_interface::next_function<push_transaction_results> next);
 
 
@@ -792,13 +810,16 @@ FC_REFLECT( eosio::chain_apis::read_only::create_key_params, (nonce) )
 FC_REFLECT( eosio::chain_apis::read_only::create_key_result, (priv_key)(pub_key) );
 
 FC_REFLECT( eosio::chain_apis::read_write::add_string_params, (id)(str) )
-FC_REFLECT( eosio::chain_apis::read_write::add_string_results, (ok)(processed) )
+FC_REFLECT( eosio::chain_apis::read_write::common_result, (ok)(processed) )
+//FC_REFLECT( eosio::chain_apis::read_write::add_string_results, (ok)(processed) )
 
 FC_REFLECT( eosio::chain_apis::read_write::create_account_params, (creator)(creator_private_key)(name)(owner_key)(active_key) )
-FC_REFLECT( eosio::chain_apis::read_write::create_account_result, (ok)(processed) )
+//FC_REFLECT( eosio::chain_apis::read_write::create_account_result, (ok)(processed) )
 
 FC_REFLECT( eosio::chain_apis::read_write::token_create_params, (issuer)(private_key)(maximum_supply))
-FC_REFLECT( eosio::chain_apis::read_write::token_create_result, (ok)(processed) )
+FC_REFLECT( eosio::chain_apis::read_write::token_issue_params, (to)(private_key)(quantity)(memo)(issuer))
+FC_REFLECT( eosio::chain_apis::read_write::token_transfer_params, (from)(to)(private_key)(quantity)(memo))
+//FC_REFLECT( eosio::chain_apis::read_write::token_create_result, (ok)(processed) )
 /////////////////////////////////////////////////////////////////////////////
 FC_REFLECT( eosio::chain_apis::read_only::get_table_by_scope_params, (code)(table)(lower_bound)(upper_bound)(limit)(reverse) )
 FC_REFLECT( eosio::chain_apis::read_only::get_table_by_scope_result_row, (code)(scope)(table)(payer)(count));
