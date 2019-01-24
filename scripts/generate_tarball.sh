@@ -6,6 +6,13 @@ mkdir -p ${PREFIX}/bin/
 #mkdir -p ${PREFIX}/lib/cmake/${PROJECT}
 mkdir -p ${EOS_PREFIX}/bin 
 mkdir -p ${EOS_PREFIX}/licenses/eosio
+
+mkdir -p ${EOS_PREFIX}/contracts/eosio.token
+mkdir -p ${EOS_PREFIX}/scripts
+mkdir -p ${EOS_PREFIX}/data/nodeos/config
+mkdir -p ${EOS_PREFIX}/data/nodeos/data
+mkdir -p ${EOS_PREFIX}/data/keosd
+
 #mkdir -p ${EOS_PREFIX}/include
 #mkdir -p ${EOS_PREFIX}/lib/cmake/${PROJECT}
 #mkdir -p ${EOS_PREFIX}/cmake
@@ -16,6 +23,14 @@ cp -R ${BUILD_DIR}/bin/* ${EOS_PREFIX}/bin
 
 # install licenses
 cp -R ${BUILD_DIR}/licenses/eosio/* ${EOS_PREFIX}/licenses
+
+# install contracts and configuration files
+cp  ${BUILD_DIR}/contracts/eosio.token/eosio.token.abi   ${EOS_PREFIX}/contracts/eosio.token
+cp  ${BUILD_DIR}/contracts/eosio.token/eosio.token.wast   ${EOS_PREFIX}/contracts/eosio.token
+cp  ${BUILD_DIR}/contracts/eosio.token/eosio.token.wasm   ${EOS_PREFIX}/contracts/eosio.token
+cp  ${BUILD_DIR}/scripts/eosio_config.sh  ${EOS_PREFIX}/scripts
+cp  ${BUILD_DIR}/scripts/keosd-config.ini  ${EOS_PREFIX}/data/keosd/config.ini
+cp  ${BUILD_DIR}/scripts/nodeos-config.ini  ${EOS_PREFIX}/data/nodeos/config/config.ini
 
 # install libraries
 #cp -R ${BUILD_DIR}/lib/* ${EOS_PREFIX}/lib

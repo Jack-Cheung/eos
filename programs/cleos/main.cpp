@@ -229,10 +229,6 @@ vector<chain::permission_level> get_account_permissions(const vector<string>& pe
    });
    vector<chain::permission_level> accountPermissions;
    boost::range::copy(fixedPermissions, back_inserter(accountPermissions));
-   for(auto& p : accountPermissions)
-   {
-      std::cout << "actor==" << p.actor << " perm ==" << p.permission << std::endl;
-   }
    return accountPermissions;
 }
 
