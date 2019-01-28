@@ -45,6 +45,7 @@ void wallet_plugin::plugin_initialize(const variables_map& options) {
 
       if (options.count("wallet-dir")) {
          auto dir = options.at("wallet-dir").as<boost::filesystem::path>();
+         ilog("wallet dir : ${dir}",("dir", (app().data_dir() / dir).generic_string()));
          if (dir.is_relative())
             wallet_manager_ptr->set_dir(app().data_dir() / dir);
          else
