@@ -14,16 +14,17 @@ fi
 
 keosd --http-server-address 0.0.0.0:8900  --wallet-dir "." \
       --data-dir "/usr/opt/EOSIO/1.5.0/data/keosd/"  \
-      > "/usr/opt/EOSIO/1.5.0/data/keosd/log.txt" &
+      --config-dir "/usr/opt/EOSIO/1.5.0/data/keosd/"  \
+      1> "/usr/opt/EOSIO/1.5.0/data/keosd/log.txt"  2>"/usr/opt/EOSIO/1.5.0/data/keosd/log.txt" &
 
 sleep 20;
 
-cleos wallet create --to-console;
-cleos wallet import --private-key 5KQwrPbwdL6PhXujxW37FSSQZ1JiwsST4cqQzDeyXtP79zkvFD3;
-cleos wallet import --private-key 5KCcKs67oWgSLFF9F2zc3Yxbb414u6bKnrHpuypWp55SEJ7Ewhr;
+cleos --wallet-url http://127.0.0.1:8900 wallet create --to-console;
+cleos --wallet-url http://127.0.0.1:8900 wallet import --private-key 5KQwrPbwdL6PhXujxW37FSSQZ1JiwsST4cqQzDeyXtP79zkvFD3;
+cleos --wallet-url http://127.0.0.1:8900 wallet import --private-key 5KCcKs67oWgSLFF9F2zc3Yxbb414u6bKnrHpuypWp55SEJ7Ewhr;
 #create eosio.token account and set contract
 
-nodeos --data-dir "$1" --config-dir $2 >"$1/log.txt" &
+nodeos --data-dir "$1" --config-dir $2   1>"$1/log.txt"   2>"$1/log.txt"  &
 if [ $? -ne 0 ];then
     echo nodeos failed to start up!
     exit 2;
@@ -31,8 +32,8 @@ fi
 
 sleep 20;
 
-cleos create account eosio eosio.token  EOS8APcg6ta4hvwiqk5Xtf7djakytDoWQQAdAD938e6d5YeXNkDef -p eosio;
+cleos --wallet-url http://127.0.0.1:8900 create account eosio eosio.token  EOS8APcg6ta4hvwiqk5Xtf7djakytDoWQQAdAD938e6d5YeXNkDef -p eosio;
 
 sleep 3;
 
-cleos set contract eosio.token $3  -p eosio.token;
+cleos --wallet-url http://127.0.0.1:8900 set contract eosio.token $3  -p eosio.token;

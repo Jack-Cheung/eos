@@ -1,8 +1,3 @@
-
-
-set(DESC "desc")
-set(URL "")
-set(EMAIL "374511110@qq.com")
 configure_file(eosio-tn_bounce.sh eosio-tn_bounce.sh COPYONLY)
 configure_file(eosio-tn_down.sh eosio-tn_down.sh COPYONLY)
 configure_file(eosio-tn_roll.sh eosio-tn_roll.sh COPYONLY)

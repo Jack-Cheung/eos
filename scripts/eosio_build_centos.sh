@@ -38,8 +38,8 @@
 
 	if [ "${DISK_AVAIL%.*}" -lt "${DISK_MIN}" ]; then
 		printf "\\n\\tYou must have at least %sGB of available storage to install EOSIO.\\n" "${DISK_MIN}"
-		printf "\\tExiting now.\\n\\n"
-		exit 1;
+		#printf "\\tExiting now.\\n\\n"
+		e#xit 1;
 	fi
 
 	printf "\\n"
@@ -55,8 +55,8 @@
         printf "\\tUpdating YUM repository...\\n"
         if ! sudo "${YUM}" -y update > /dev/null 2>&1; then
                 printf "\\t!! YUM update failed !!\\n"
-                printf "\\tExiting now.\\n"
-                exit 1;
+                #printf "\\tExiting now.\\n"
+                #exit 1;
         fi
         printf "\\t - YUM repository successfully updated.\\n"
 
@@ -371,8 +371,7 @@
 			printf "\\tExiting now.\\n"
 			exit 1;
 		fi
-		#if ! $TEMP_DIR/$BOOSTFOLDER/b2 -j"${JOBS}" install; then
-		if ! $TEMP_DIR/$BOOSTFOLDER/b2  install; then
+		if ! $TEMP_DIR/$BOOSTFOLDER/b2 -j"${JOBS}" install; then
 			printf "\\t!! Installation of boost libraries in ${BOOST_ROOT} failed with the above error !! 1\\n"
 			printf "\\tExiting now.\\n"
 			exit 1;
@@ -397,7 +396,8 @@
 	printf "\\n"
 
 	printf "\\tChecking MongoDB installation.\\n"
-	if [ ! -e "${MONGOD_CONF}" ]; then
+	#if [ ! -e "${MONGOD_CONF}" ]; then
+	if [ "${MONGOD_CONF}" -eq "will not installed" ]; then
 		printf "\\tInstalling MongoDB 3.6.3...\\n"
 		if [ ! -d "${HOME}/opt" ]; then
 			if ! mkdir "${HOME}/opt"; then
@@ -546,8 +546,7 @@ mongodconf
 			printf "\\tExiting now.\\n"
 			exit 1;
 		fi
-		#if ! make -j"${JOBS}"; then
-		if ! make ; then
+		if ! make -j"${JOBS}"; then
 			printf "\\t!! Error compiling MongoDB C driver !!\\n"
 			printf "\\tExiting now.\\n"
 			exit 1;
@@ -582,8 +581,7 @@ mongodconf
 			printf "\\tExiting now.\\n"
 			exit 1;
 		fi
-		#if ! sudo make -j"${JOBS}"; then
-		if ! sudo make ; then
+		if ! sudo make -j"${JOBS}"; then
 			printf "\\t!! Error compiling MongoDB C++ driver !!\\n"
 			printf "\\tExiting now.\\n\\n"
 			exit 1;
@@ -669,8 +667,7 @@ mongodconf
 			printf "\\tExiting now.\\n"
 			exit 1;
 		fi
-		#if ! make -j"${JOBS}"; then
-		if ! make ; then
+		if ! make -j"${JOBS}"; then
 			printf "\\t!! Compiling LLVM with EXPERIMENTAL WASM support has exited with the above errors !!\\n"
 			printf "\\tExiting now.\\n"
 			exit 1;
