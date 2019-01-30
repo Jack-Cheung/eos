@@ -13,7 +13,7 @@ DESC="@DESC@"
 URL="@URL@"
 EMAIL="@EMAIL@"
 
-#  export BUILD_DIR
+export BUILD_DIR
 #  export VERSION_NO_SUFFIX
 #  export VERSION_SUFFIX
 #  export VERSION
@@ -44,9 +44,6 @@ export SPREFIX
 export SSUBPREFIX
 
 bash generate_tarball.sh ${NAME}.tar.gz
-bash generate_tarball.sh ${NAME}.tar.gz
-
-tar -xvzf ${NAME}.tar.gz -C ${PROJECT} 
 
 exit 0;
 

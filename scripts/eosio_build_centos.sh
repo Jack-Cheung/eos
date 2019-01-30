@@ -39,7 +39,7 @@
 	if [ "${DISK_AVAIL%.*}" -lt "${DISK_MIN}" ]; then
 		printf "\\n\\tYou must have at least %sGB of available storage to install EOSIO.\\n" "${DISK_MIN}"
 		#printf "\\tExiting now.\\n\\n"
-		e#xit 1;
+		#exit 1;
 	fi
 
 	printf "\\n"
