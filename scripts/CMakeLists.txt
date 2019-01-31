@@ -10,6 +10,7 @@ configure_file(generate_tarball.sh generate_tarball.sh COPYONLY)
 configure_file(nodeos-config.ini nodeos-config.ini COPYONLY)
 configure_file(keosd-config.ini keosd-config.ini COPYONLY)
 configure_file(eosio_config.sh eosio_config.sh COPYONLY)
+configure_file(eosio_config_clean.sh eosio_config_clean.sh COPYONLY)
 
 
 
