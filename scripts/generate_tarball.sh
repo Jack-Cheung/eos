@@ -29,6 +29,7 @@ cp  ${BUILD_DIR}/contracts/eosio.token/eosio.token.abi   ${EOS_PREFIX}/contracts
 cp  ${BUILD_DIR}/contracts/eosio.token/eosio.token.wast   ${EOS_PREFIX}/contracts/eosio.token
 cp  ${BUILD_DIR}/contracts/eosio.token/eosio.token.wasm   ${EOS_PREFIX}/contracts/eosio.token
 cp  ${BUILD_DIR}/scripts/eosio_config.sh  ${EOS_PREFIX}/scripts
+cp  ${BUILD_DIR}/scripts/eosio_config_clean.sh  ${EOS_PREFIX}/scripts
 cp  ${BUILD_DIR}/scripts/keosd-config.ini  ${EOS_PREFIX}/data/keosd/config.ini
 cp  ${BUILD_DIR}/scripts/nodeos-config.ini  ${EOS_PREFIX}/data/nodeos/config/config.ini
 
