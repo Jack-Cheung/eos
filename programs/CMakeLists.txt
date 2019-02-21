@@ -1,6 +1,6 @@
 add_subdirectory( nodeos )
 add_subdirectory( cleos )
-#add_subdirectory( libcleos )
+add_subdirectory( libcleos )
 add_subdirectory( keosd )
 add_subdirectory( eosio-launcher )
 add_subdirectory( eosio-blocklog )

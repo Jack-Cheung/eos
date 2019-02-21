@@ -31,7 +31,7 @@ keosd --http-server-address 0.0.0.0:8900  --wallet-dir "." \
 
 sleep 20;
 
-cleos --wallet-url http://127.0.0.1:8900 wallet create --to-console;
+cleos --wallet-url http://127.0.0.1:8900 wallet create --to-console  &> "/usr/opt/EOSIO/1.5.0/data/keosd/passwd.txt";
 cleos --wallet-url http://127.0.0.1:8900 wallet import --private-key 5KQwrPbwdL6PhXujxW37FSSQZ1JiwsST4cqQzDeyXtP79zkvFD3;
 cleos --wallet-url http://127.0.0.1:8900 wallet import --private-key 5KCcKs67oWgSLFF9F2zc3Yxbb414u6bKnrHpuypWp55SEJ7Ewhr;  
 

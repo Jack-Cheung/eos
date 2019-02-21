@@ -1,0 +1,43 @@
+{
+    "____comment": "This file was generated with eosio-abigen. DO NOT EDIT Fri Feb 15 13:32:12 2019",
+    "version": "eosio::abi/1.0",
+    "structs": [
+        {
+            "name": "send",
+            "base": "",
+            "fields": [
+                {
+                    "name":"from", 
+                    "type":"name"
+                },
+                {
+                    "name":"to", 
+                    "type":"name"
+                },
+                {
+                    "name":"amount", 
+                    "type":"asset"
+                },
+                {
+                    "name":"memo", 
+                    "type":"string"
+                },
+                {
+                    "name":"delay", 
+                    "type":"uint64"
+                },                
+            ]
+        }
+    ],
+    "types": [],
+    "actions": [
+        {
+            "name": "send", 			
+            "type": "send", 
+            "ricardian_contract": "" 
+        }
+    ],
+    "tables": [],
+    "ricardian_clauses": [],
+    "abi_extensions": []
+}
