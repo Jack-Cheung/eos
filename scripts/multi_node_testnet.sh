@@ -1,10 +1,10 @@
 #!/bin/bash
-node_num=$1
-echo "I will create $node_num node(s)"
 if [ $# -ne 1 ];then
     echo "usage $0 <number of nodes> \n note:[3~9]expected"
     exit
 fi
+node_num=$1
+echo "I will create $node_num node(s)"
 key_pairs=(
     "EOS6MRyAjQq8ud7hVNYcfnVPJqcVpscN5So8BhtHuGYqET5GDW5CV=KEY:5KQwrPbwdL6PhXujxW37FSSQZ1JiwsST4cqQzDeyXtP79zkvFD3"
     "EOS6FDRMXLyJAoN7kBCKiXaVRUw33PHK7NtQokfx8UpaCrNgzds2d=KEY:5J4TKkxA6YHJpnFH9UhzMAPr4CqLzaa6Pft9o78C8FzYXh11XFx"
@@ -24,8 +24,9 @@ do
     cat ${this_dir}/nodeos-config-test.ini | sed "s/0.0.0.0:8888/0.0.0.0:888${i}/g" \
     | sed "s/signature-provider =.*$/signature-provider = ${key_pairs[$i-1]}/g"  \
     | sed "s/p2p-listen-endpoint = 0.0.0.0:9876/p2p-listen-endpoint = 0.0.0.0:987${i}/g" \
-    | sed "s/bnet-endpoint = 0.0.0.0:4321/bnet-endpoint = 0.0.0.0:432${i}/" \
+    | sed "s/p2p-max-nodes-per-host = 1/p2p-max-nodes-per-host = 10/g" \
      > ${node_dir}/config.ini
+    #| sed "s/bnet-endpoint = 0.0.0.0:4321/bnet-endpoint = 0.0.0.0:432${i}/" \
     if [ $i -ne 1 ]
     then 
         sed -i "s/enable-stale-production = true/enable-stale-production = false/g"  ${node_dir}/config.ini
@@ -47,7 +48,7 @@ keosd_dir=${root_dir}/keosd
 keosd --http-server-address 0.0.0.0:8900  --wallet-dir "." \
       --data-dir "${keosd_dir}"  \
       --config-dir "${keosd_dir}"  \
-      1> "${keosd_dir}/log.txt"  2>"${keosd_dir}/log.txt" &
+      &>"${keosd_dir}/log.txt" &
 cleos --wallet-url http://127.0.0.1:8900 wallet create --to-console  &> "${keosd_dir}/passwd.txt"
 #import keys
 for k in ${key_pairs[@]}
@@ -56,10 +57,30 @@ do
     cleos --wallet-url http://127.0.0.1:8900  \
     wallet import --private-key  ${array[1]};  
 done
-#start nodeos
-for i in `seq 1 $node_num`
+#start producer node
+data_dir=${root_dir}/node_1/data
+config_dir=${root_dir}/node_1
+nodeos  --data-dir ${data_dir} --config-dir ${config_dir}   &>"${data_dir}/log.txt" &
+echo "--data-dir ${data_dir} --config-dir ${config_dir}"
+sleep 10
+#set bios contract
+cleos --wallet-url http://127.0.0.1:8900 --url http://127.0.0.1:8881 set contract eosio ${this_dir}/../build/contracts/eosio.bios
+sleep 10
+#start other nodeos
+for i in `seq 2 $node_num`
 do
+    k=${key_pairs[$i-1]}
+    arr=(${k//=KEY:/ })
+    public_key=${arr[0]}
+    cleos --wallet-url http://127.0.0.1:8900  \
+    --url http://127.0.0.1:8881 \
+    create account eosio node$i  $public_key -p eosio 
+    sleep 5
     data_dir=${root_dir}/node_$i/data
     config_dir=${root_dir}/node_$i
     nodeos  --data-dir ${data_dir} --config-dir ${config_dir}   &>"${data_dir}/log.txt" &
 done
+
+# change producer
+#cleos --wallet-url http://127.0.0.1:8900 --url http://127.0.0.1:8881  push action eosio setprods \ 
+#"{ \"schedule\": [{\"producer_name\": \"node2\",\"block_signing_key\": \"EOS6FDRMXLyJAoN7kBCKiXaVRUw33PHK7NtQokfx8UpaCrNgzds2d\"}]}" -p eosio@active
